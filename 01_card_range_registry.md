@@ -35,18 +35,23 @@ covers it. You may assume in Part 1 that no two ranges overlap.
 **Example**
 
 Ranges:
+
 ```
 400000 499999 visa
 510000 559999 mastercard
 340000 349999 amex
 ```
+
 Queries:
+
 ```
 411111
 340012
 600000
 ```
+
 Output:
+
 ```
 visa
 amex
@@ -64,10 +69,12 @@ overlapping portion only).
 **Example**
 
 Ranges:
+
 ```
 400000 499999 visa
 450000 459999 visa_debit
 ```
+
 Query `455000` → `visa_debit`; query `411111` → `visa`.
 
 Note that a later range may only partially cover an earlier one. The earlier range
@@ -88,11 +95,14 @@ output `NONE`.
 **Example**
 
 Ranges:
+
 ```
 100 200 a
 400 500 b
 ```
+
 Domain is `[100, 500]`. Output:
+
 ```
 201 399
 ```
@@ -112,12 +122,15 @@ Output the canonical ranges sorted ascending by `low`, one per line, as
 **Example**
 
 Resolved ranges:
+
 ```
 100 150 visa
 151 200 visa
 300 400 amex
 ```
+
 Output:
+
 ```
 100 200 visa
 300 400 amex
@@ -130,7 +143,7 @@ Output:
 - Part 1's data structure choice cascades. A flat list you re-scan per query is fine
   for correctness; think about whether you'd rather resolve to a list of
   non-overlapping segments up front.
-- "Last-write-wins" is about the *overlapping portion only*, not the whole earlier range.
+- "Last-write-wins" is about the _overlapping portion only_, not the whole earlier range.
 - Off-by-one on inclusive bounds is the classic failure here (gaps and adjacency both
   hinge on it).
 - Empty input, a single range, and a query exactly on a boundary are all worth testing.

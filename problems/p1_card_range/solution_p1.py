@@ -15,21 +15,46 @@ INPUT FORMATS
 
 Manual run against stdin:  python solution_p1.py 2 < input.txt
 """
+from operator import indexOf
 from typing import List
 
 
 def part1(lines: List[str]) -> List[str]:
     # Non-overlapping lookup. Output the owning bank per query, or "UNKNOWN".
-    raise NotImplementedError
+    ranges, queries = lines[:lines.index('QUERIES')], lines[lines.index('QUERIES')+1:]
+    ans = []
+    for q in queries:
+        cur_bank = 'UNKNOWN'
+        for r in ranges:
+            lo, hi, bank = r.split(' ')
+            if lo <= q <= hi:
+                cur_bank = bank
+                break
+        ans.append(cur_bank)
+    return ans
 
 
 def part2(lines: List[str]) -> List[str]:
     # Overlapping ranges allowed; the LATER range in input order wins on overlap.
-    raise NotImplementedError
+    # first thing to do: set it up such that the ranges are set up with the ranges cleaned up
+    ranges, queries = lines[:lines.index('QUERIES')], lines[lines.index('QUERIES')+1:]
+    ans = []
+    for q in queries:
+        cur_bank = 'UNKNOWN'
+        cur_start = -1
+        for r in ranges:
+            lo, hi, bank = r.split(' ')
+            if lo <= q <= hi:
+                if int(lo) > cur_start:
+                    cur_bank = bank
+                    cur_start = int(lo)
+        ans.append(cur_bank)
+    return ans
 
 
-def part3(lines: List[str]) -> List[str]:
+def part3(lines: List[str]) -> List[str]: 
     # Report coverage gaps within [min low, max high], ascending. "NONE" if none.
+    
     raise NotImplementedError
 
 
