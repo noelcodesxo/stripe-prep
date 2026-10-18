@@ -45,7 +45,7 @@ stripe-prep/
   07_card_validation.md
   problems/
     p4_load_balancer/
-      solution_p4.py             <- your code goes here (stub with the I/O contract)
+      solution_p4.py             <- your code goes here (Solution class with I/O contract)
       test_p4.py                 <- runnable, hand-verified tests
     ...one folder per problem...
   requirements.txt
@@ -54,18 +54,19 @@ stripe-prep/
 
 ## How it works
 
-Each `solution_pX.py` mirrors a HackerRank stub: four functions (`part1`..`part4`),
-one per part. Each takes the input for that part as a **list of lines** and returns a
-**list of output lines**. The docstring at the top of every stub spells out the exact
-input format and expected output. There's a `__main__` block so you can run a part
-against stdin manually:
+Each `solution_pX.py` mirrors a HackerRank stub: a `Solution` class with one stable
+entry point, `solve(lines, part=1)`. Pass the input for the selected part as a **list
+of lines**; it returns a **list of output lines**. Implement the part logic in the
+class methods, leaving the shared CLI harness alone. The docstring at the top of
+every stub spells out the exact input format and expected output. Run a part against
+stdin manually with:
 
 ```
 python problems/p4_load_balancer/solution_p4.py 3 < some_input.txt
 ```
 
-The tests call your functions directly and compare against hand-verified expected
-outputs — they fail with `NotImplementedError` until you fill each part in.
+The tests call `Solution.solve` and compare against hand-verified expected outputs —
+they fail with `NotImplementedError` until you fill each part in.
 
 ## Timed practice driver
 

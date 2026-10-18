@@ -29,7 +29,7 @@ The data-structure toolkit you actually need is small: **hash maps/sets, sorting
 Every one of these problems is **one scenario revealed in 4 escalating parts**, where each part reuses the previous part's code. This structure rewards a specific way of working:
 
 **Design Part 1 to be extended, not just to pass.**
-- Put the core logic in **small, named functions** (`normalize(name)`, `compute_penalty(log, t)`, `luhn_ok(num)`), not one giant `main`.
+- Put the core logic in **small, named helper methods** on `Solution` (`normalize(name)`, `compute_penalty(log, t)`, `luhn_ok(num)`), not one giant `solve` method.
 - Keep your **state explicit** — a dict/set/class you can inspect and *mutate* later. Part 3 almost always adds "undo" (reclaim a name, dispute a charge, dissolve a company), so store enough information to reverse an action, not just the final answer.
 - Use a **line dispatcher** for input. Later parts add new line types (`RECLAIM,...`, `DISPUTE,...`, `BEGIN...END`). If Part 1 already routes each line by its prefix, adding a case is a two-line change.
 

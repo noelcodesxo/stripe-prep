@@ -1,15 +1,15 @@
 """
 Problem 4 - Multi-Stage Load Balancer (OOD).  Full spec: ../../04_load_balancer.md
 
-This one is object-oriented by nature: model ONE class that holds the shared
-state (per-server connection counts, connectionId->server, objectId->server) and
-let each part be a small method on top of it. Parts 2-4 should be additions, not
-rewrites -- if you find yourself rewriting Part 1, restructure.
+Implement the Solution methods below. `solve` is the stable entry point for every
+part: pass the input lines and the part number, then return the output lines.
 
-Each function receives the input for that part as a list of lines and returns a
-list of output lines (one per CONNECT). DISCONNECT emits nothing.
+This one is object-oriented by nature: model ONE class that holds the shared state
+(per-server connection counts, connectionId->server, objectId->server) and let each
+part add a small method on top of it. Parts 2-4 should be additions, not rewrites --
+if you find yourself rewriting Part 1, restructure.
 
-LINE TYPES
+Each line is one of:
   SERVERS <n>                 first line: number of servers, indexed 0..n-1
   CONNECT <cid> <uid>         part 1+: assign to least-loaded (tie -> smallest index)
   DISCONNECT <cid>            part 2+: free that connection; unknown cid is ignored
@@ -25,30 +25,96 @@ Manual run against stdin:  python solution_p4.py 3 < input.txt
 from typing import List
 
 
-def part1(lines: List[str]) -> List[str]:
-    # SERVERS + CONNECT only. Route to fewest active connections; tie -> lowest index.
-    raise NotImplementedError
+class LoadBalancer:
+    def __init__(self, server_count: int, capacity: int | None = None):
+        self.connection_count_per_server = [0] * server_count
+        self.connection_id_to_server = {}
+        self.capacity = capacity
+        self.object_id_to_server = {}
+
+    def find_server_with_least_connections(self) -> int:
+        server = 0
+        min_conn_count: int = self.connection_count_per_server[0]
+
+        for idx in range(1, len(self.connection_count_per_server)):
+            if self.connection_count_per_server[idx] < min_conn_count:
+                server = idx
+                min_conn_count = self.connection_count_per_server[idx]
+        return server
+
+    def establish_new_connection(self, conn_id: int, user_id: str, object_id: int = None) -> str:
+        if conn_id in self.connection_id_to_server:
+            return None
+
+        # Extend method to support the object id to server logic
+        server = self.object_id_to_server[object_id] if object_id is not None and object_id in self.object_id_to_server else self.find_server_with_least_connections()
+
+        if self.capacity is not None and self.connection_count_per_server[server] >= self.capacity:
+            return "{},{},REJECTED".format(conn_id, user_id)
+        else:
+            self.connection_id_to_server[conn_id] = server
+            self.connection_count_per_server[server] += 1
+            if object_id is not None:
+                self.object_id_to_server[object_id] = server
+            return "{},{},{}".format(conn_id, user_id, server)
+
+    def disconnect(self, conn_id: int) -> None:
+        if conn_id not in self.connection_id_to_server:
+            return None
+
+        # Find server to reduce count from.
+        server = self.connection_id_to_server[conn_id]
+        self.connection_count_per_server[server] -= 1
+
+        # Check how to delete a key from a map if this is the correct way.
+        del self.connection_id_to_server[conn_id]
 
 
-def part2(lines: List[str]) -> List[str]:
-    # Adds DISCONNECT (decrement that server; unknown connection id is a no-op).
-    raise NotImplementedError
+class Solution:
+    def solve(self, lines: List[str], part: int = 1) -> List[str]:
+        """Run one stage of the problem against a list of input lines."""
+        if part not in (1, 2, 3, 4):
+            raise ValueError(f"part must be between 1 and 4, got {part}")
 
+        loadbalancer = None
+        responses: list[str] = []
+        for line in lines:
+            tokens = line.split(" ")
 
-def part3(lines: List[str]) -> List[str]:
-    # Adds sticky routing: a 4th CONNECT token (objectId) pins all its requests to
-    # one server permanently -- checked BEFORE load balancing, kept across disconnect.
-    raise NotImplementedError
+            if tokens[0] == "SERVERS":
+                server_count: int = int(tokens[1])
+                if part < 4:
+                    loadbalancer = LoadBalancer(capacity=10, server_count=server_count)
+                else:
+                    loadbalancer = LoadBalancer(server_count=server_count)
+            elif part == 4 and tokens[0] == "CAPACITY":
+                capacity: int = int(tokens[1])
+                loadbalancer.capacity = capacity
+            elif tokens[0] == "CONNECT":
+                conn_id = tokens[1]
+                user_id = tokens[2]
+                if part >= 3:
+                    object_id = tokens[3] if len(tokens) >= 4 else None
+                    responses.append(loadbalancer.establish_new_connection(
+                        conn_id=conn_id,
+                        user_id=user_id,
+                        object_id=object_id,
+                    ))
+                else:
+                    responses.append(loadbalancer.establish_new_connection(
+                        conn_id=conn_id,
+                        user_id=user_id,
+                    ))
+            elif part == 4 and tokens[0] == "DISCONNECT":
+                conn_id = tokens[1]
+                loadbalancer.disconnect(conn_id=conn_id)
 
-
-def part4(lines: List[str]) -> List[str]:
-    # Adds CAPACITY: reject (don't place) a CONNECT when its target would exceed cap.
-    raise NotImplementedError
+        return responses
 
 
 if __name__ == "__main__":
     import sys
-    part = sys.argv[1] if len(sys.argv) > 1 else "1"
+
+    part = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     data = sys.stdin.read().splitlines()
-    fn = {"1": part1, "2": part2, "3": part3, "4": part4}[part]
-    print("\n".join(fn(data)))
+    print("\n".join(Solution().solve(data, part)))
