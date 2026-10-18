@@ -1,146 +1,71 @@
 # Problem 2 — Subscription Billing Engine
 
 **Difficulty:** Medium
+
 **Suggested time:** 18–22 minutes
 
-## Background
+Time is measured in whole, non-negative days. A customer has at most one active
+subscription at a time. Process one ordered event history, then answer its requests.
 
-You are building the billing core for a subscription product. Time is measured in
-**whole days** as non-negative integers (day 0, day 1, …) — no real calendar, no time
-zones. You process an ordered **event log** and answer questions about what customers
-owe.
+Use one `Solution.solve(lines, part=...)` processor. Input starts with plan definitions
+and dated events, sorted by day, then contains one or more `QUERY` and/or `INVOICE`
+requests. All requests come after the events and are emitted in request order. Later
+parts add event/request types while retaining earlier ones.
 
-A customer subscribes to a **plan**. Each plan has a name and a **daily rate** in
-integer cents. A customer has at most one active subscription at a time.
-
-Read all four parts first. The event model you pick in Part 1 has to survive plan
-changes and refunds later.
-
----
-
-## Part 1 — Total charges from a simple lifecycle
-
-You are given plan definitions, one per line:
-
-```
+```text
 PLAN <name> <daily_rate_cents>
-```
-
-Then an event log, one event per line, already sorted by day ascending:
-
-```
 <day> SUBSCRIBE <customer> <plan>
 <day> CANCEL <customer>
-```
-
-A subscription accrues charges for each day the customer is subscribed, from the
-SUBSCRIBE day **inclusive** up to (but **not including**) the CANCEL day. A customer
-who never cancels is still subscribed "as of" a final query day given at the end of
-input as:
-
-```
+<day> CHANGE <customer> <new_plan>
+<day> REFUND <customer> <cents>
 QUERY <day>
+INVOICE <customer> <start_day> <end_day>
 ```
 
-For each `QUERY <day>`, output total accrued cents per customer that has ever
-subscribed, as `<customer> <cents>`, sorted by customer name. Charges accrue only up
-to and not including the query day.
+## Part 1 — Subscription charges
 
-**Example**
+SUBSCRIBE accrues charges from its day inclusive. CANCEL stops accrual on its day
+(exclusive). A still-active subscription accrues through the `QUERY` cutoff, also
+exclusive. For every `QUERY <day>`, output each customer who has ever subscribed as
+`<customer> <cents>`, sorted by customer name. A customer remains in the report even
+if the total is zero.
 
-```
+```text
 PLAN basic 100
 5 SUBSCRIBE alice basic
 10 CANCEL alice
 QUERY 20
 ```
-alice was subscribed days 5,6,7,8,9 = 5 days × 100 = `500`.
+
 Output:
-```
+
+```text
 alice 500
 ```
 
----
+## Part 2 — Plan changes
 
-## Part 2 — Plan changes with proration
-
-A new event appears:
-
-```
-<day> CHANGE <customer> <new_plan>
-```
-
-On a CHANGE, the customer stops accruing the old plan's rate and starts accruing the
-new plan's rate **beginning that day** (the change day is billed at the new rate).
-Charges before the change day keep the old rate. A CHANGE for a customer with no active
-subscription is invalid input and can be ignored.
-
-**Example**
-
-```
-PLAN basic 100
-PLAN pro 300
-0 SUBSCRIBE bob basic
-4 CHANGE bob pro
-6 CANCEL bob
-QUERY 10
-```
-Days 0–3 at 100 = 400; days 4–5 at 300 = 600; total `1000`.
-
----
+`CHANGE` stops the old rate and starts the new rate on the change day. A change for a
+customer without an active subscription is ignored. Previous `QUERY` requests and
+their output are unchanged.
 
 ## Part 3 — Re-subscription and refunds
 
-Two more events:
+A customer may subscribe again after cancelling; separate intervals add together.
+`REFUND` subtracts its cents from the customer's running total on its event day. A
+reported total may be negative. `QUERY` includes refunds on or before its cutoff.
 
-```
-<day> SUBSCRIBE <customer> <plan>   # may now happen again after a CANCEL
-<day> REFUND <customer> <cents>
-```
+## Part 4 — Invoice windows
 
-A customer may subscribe again after cancelling; charges from separate subscription
-intervals **add up**. A REFUND subtracts a fixed number of cents from that customer's
-running total. A customer's reported total may go negative; report it as-is.
-
-Output format is unchanged: `<customer> <cents>` sorted by customer.
-
----
-
-## Part 4 — Invoicing windows
-
-Instead of (or in addition to) a single final query, you may be asked for the amount
-billed within a **half-open window** `[start_day, end_day)`:
-
-```
-INVOICE <customer> <start_day> <end_day>
-```
-
-Output the charges that customer accrued **only within that window** — apply proration
-at window edges (a subscription that spans the boundary is counted only for the days
-inside `[start_day, end_day)`). Refunds are **not** included in an INVOICE result;
-INVOICE reports gross accrued charges for the window only.
-
-Output one line per INVOICE, in input order: `<customer> <cents>`.
-
-**Example**
-
-```
-PLAN basic 100
-0 SUBSCRIBE carol basic
-INVOICE carol 3 8
-```
-Days 3,4,5,6,7 = 5 × 100 = `500`.
-
----
+`INVOICE <customer> <start_day> <end_day>` requests the gross charges in the half-open
+window `[start_day, end_day)`, with rate proration at both edges. Refunds do not affect
+invoice amounts. Output one `<customer> <cents>` line for each invoice, in request
+order. `QUERY` requests continue to work in the same input.
 
 ## Things to get right
 
-- Inclusive start, exclusive end is the whole game — SUBSCRIBE day counts, CANCEL day
-  does not, and the same rule governs INVOICE windows.
-- Don't collapse a customer's history into one interval too early; Part 3 needs
-  multiple intervals per customer.
-- CHANGE bills the change day at the new rate — decide where that boundary lives before
-  you write the accrual loop.
-- Test: cancel-and-resubscribe same day, a CHANGE on the SUBSCRIBE day, an INVOICE
-  window entirely outside any subscription (should be 0), and a refund larger than
-  charges (negative total).
+- Inclusive start, exclusive end governs subscriptions, changes, queries, and invoices.
+- Keep enough history to answer multiple cutoffs and invoice windows.
+- A change day is billed at the new rate.
+- Test same-day cancel/re-subscribe, a change on the subscribe day, an invoice outside
+  all subscriptions, and a refund larger than the customer's charges.

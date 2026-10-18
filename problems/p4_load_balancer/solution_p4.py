@@ -1,8 +1,9 @@
 """
 Problem 4 - Multi-Stage Load Balancer (OOD).  Full spec: ../../04_load_balancer.md
 
-Implement the Solution methods below. `solve` is the stable entry point for every
-part: pass the input lines and the part number, then return the output lines.
+`solve` is the stable entry point for every stage. Pass the whole command stream and
+the latest part number; earlier commands continue to use the same load-balancer state
+and output rows as later features are added.
 
 This one is object-oriented by nature: model ONE class that holds the shared state
 (per-server connection counts, connectionId->server, objectId->server) and let each

@@ -4,7 +4,10 @@
 
 Founders register company names. To avoid confusion, a name is unavailable if it **normalizes** to the same thing as an already-registered name. The core is one `normalize(name)` function plus a registry `dict` mapping `normalized_name -> owning account`. Store the owner (not just a set) — Part 3 needs it to authorize reclaims.
 
-Input is a list of lines. A registration line is `<account_id>|<proposed_name>` and emits one result. Other line types are introduced later and may emit nothing.
+Input is one list of interleaved lines processed by `Solution.solve(lines, part=...)`.
+A registration line is `<account_id>|<proposed_name>` and emits one result. Later
+parts add commands to the same registry stream; registration output remains unchanged
+and every line is handled in order.
 
 ## Part 1 — Basic normalization
 
@@ -38,7 +41,7 @@ New line: `RECLAIM|<account_id>|<name>` — a dissolved company frees its name. 
 
 ## Part 4 — WHOIS lookups
 
-New line: `WHOIS|<name>` — output the `account_id` that currently owns the normalized name, or `UNREGISTERED`. WHOIS, registrations, and reclaims are interleaved; process in order.
+New line: `WHOIS|<name>` — output the `account_id` that currently owns the normalized name, or `UNREGISTERED`. WHOIS, registrations, and reclaims are interleaved; process in order. A WHOIS after a successful reclaim observes the freed name; a later registration may take it.
 
 ## Traps to watch
 

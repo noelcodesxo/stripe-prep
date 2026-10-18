@@ -4,6 +4,11 @@
 
 You are implementing a connection load balancer. This is an **object-oriented design** problem: the win is a single clean class that holds the shared state, with each stage adding a small, well-ordered rule on top. If you're rewriting Part 1 to do Part 3, stop and restructure.
 
+Use one `Solution.solve(lines, part=...)` call over the full command stream. The part
+argument enables the latest stage's commands, but it never switches to a separate
+output mode. All `CONNECT` requests continue to share the same connection counts and
+bindings, and every `CONNECT` continues to emit the same row format.
+
 The input is a list of lines. The first line is always `SERVERS <n>`, declaring `n` servers indexed `0 .. n-1`. Every `CONNECT` produces exactly one output line; `DISCONNECT` produces none.
 
 ## Part 1 — Basic load balancing

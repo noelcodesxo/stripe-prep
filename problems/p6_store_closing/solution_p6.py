@@ -1,25 +1,8 @@
-"""
-Problem 6 - Store Closing Time.  Full spec: ../../06_store_closing.md
+"""Problem 6 - Store Closing Time.
 
-An hourly log of 'Y' (customers) / 'N' (empty). For a closing_time t in 0..n,
-penalty = (# empty hours while OPEN, i.e. in hours[:t]) + (# customer hours while
-CLOSED, i.e. in hours[t:]). Parts 3-4 add parsing many logs out of noisy text.
-
-Implement the Solution methods below. `solve` is the stable entry point for every
-part: pass the input lines and the part number, then return the output lines.
-
-PARTS
-  part 1: input line 1 = space-separated Y/N log; line 2 = closing_time int.
-          Output one line: the penalty.
-  part 2: input line 1 = the log. Output one line: the best closing time (minimum
-          penalty; on a tie, the SMALLEST closing time).
-  part 3: input is an aggregate blob (any number of lines). Extract every valid
-          log -- a run "BEGIN <Y/N>* END". BEGIN with no END is discarded; a nested
-          BEGIN restarts the current log (no nesting); non-Y/N tokens are garbage.
-          Output the best closing time for each valid log, in order, one per line.
-  part 4: input line 1 = "WEIGHTS <a> <b>" (a = cost per empty-open hour, b = cost
-          per closed-with-customers hour); the rest is an aggregate blob. Output
-          "<best_time> <min_penalty>" per valid log.
+Each request evaluates one Y/N log, and every stage returns a `<time> <penalty>` row.
+The shared noisy-log parser and penalty calculation are intentionally left for the
+learner.
 
 Manual run against stdin:  python solution_p6.py 2 < input.txt
 """
@@ -28,26 +11,29 @@ from typing import List
 
 class Solution:
     def solve(self, lines: List[str], part: int = 1) -> List[str]:
-        """Run one stage of the problem against a list of input lines."""
+        """Read close/auto requests and evaluate logs through one shared flow."""
         if part not in (1, 2, 3, 4):
             raise ValueError(f"part must be between 1 and 4, got {part}")
-        return getattr(self, f"_part{part}")(lines)
 
-    def _part1(self, lines: List[str]) -> List[str]:
-        # Penalty for one log at one given closing time.
-        raise NotImplementedError
+        tokens = " ".join(lines).split()
+        weighted = part == 4 and bool(tokens) and tokens[0] == "WEIGHTS"
+        if tokens and tokens[0] == "WEIGHTS" and part < 4:
+            raise ValueError("WEIGHTS is available from part 4")
+        if weighted:
+            weights = (int(tokens[1]), int(tokens[2]))
+            tokens = tokens[3:]
+        else:
+            weights = (1, 1)
 
-    def _part2(self, lines: List[str]) -> List[str]:
-        # Best closing time (min penalty; smallest time breaks ties). Aim for O(n).
-        raise NotImplementedError
+        records: list[tuple[list[str], str, int | None]] = []
+        pending_request: tuple[str, int | None] | None = None
+        current_log: list[str] | None = None
 
-    def _part3(self, lines: List[str]) -> List[str]:
-        # Parse valid BEGIN..END logs from noisy text; best closing time for each.
-        raise NotImplementedError
-
-    def _part4(self, lines: List[str]) -> List[str]:
-        # Weighted penalty; output "<best_time> <min_penalty>" per valid log.
-        raise NotImplementedError
+        # TODO: make one token pass to collect BEGIN/END records, preserving
+        # pending_request while a BEGIN is restarted by another BEGIN. CLOSE t and
+        # AUTO attach to the next completed record; unmarked records default to AUTO
+        # from Part 3 onward. Ignore garbage and discard unfinished records.
+        raise NotImplementedError("Implement the shared noisy-log and penalty flow")
 
 
 if __name__ == "__main__":
