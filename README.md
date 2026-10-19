@@ -1,10 +1,11 @@
 # Stripe-Style OA Practice
 
 A self-contained, **offline** practice kit modeled on the format of Stripe's HackerRank
-engineering coding challenge: seven original problems, each one dense scenario split
-into four escalating parts, each with a starter (boilerplate) file and a runnable test
-suite. These are **original** problems written to mimic the *shape* of the real thing —
-do not treat any wording as the actual assessment.
+engineering coding challenge: eight problems, each with a starter (boilerplate) file
+and a runnable test suite. Problems 1–7 are **original** four-part exercises written
+to mimic the *shape* of the real thing. Problem 8 is a three-part reconstruction
+from public reports, with explicit practice conventions. None is an official
+assessment statement.
 
 ## Why they look like this
 
@@ -25,6 +26,7 @@ format exactly, is the goal.
 | 5 | `p5_name_registry` | Company Name Registry | string normalization, registry + owner-only undo |
 | 6 | `p6_store_closing` | Store Closing Time | prefix-sum penalty, BEGIN/END state-machine parse |
 | 7 | `p7_card_validation` | Payment Card Validation | Luhn, network detect, redacted/corrupted brute force |
+| 8 | `p8_chat_billing` | Chat Token Billing | CSV parsing, grouped usage, token blocks, session-based proration |
 
 Read `STUDY_GUIDE.md` first — it's the strategy + pattern reference, and it maps each
 pattern to the problem that drills it. Problem statements live in the numbered `.md`
@@ -43,6 +45,7 @@ stripe-prep/
   05_name_registry.md
   06_store_closing.md
   07_card_validation.md
+  08_chat_billing.md
   problems/
     p4_load_balancer/
       solution_p4.py             <- your code goes here (stub with the I/O contract)
@@ -55,8 +58,8 @@ stripe-prep/
 ## How it works
 
 Each `solution_pX.py` mirrors a HackerRank stub: four functions (`part1`..`part4`),
-one per part. Each takes the input for that part as a **list of lines** and returns a
-**list of output lines**. The docstring at the top of every stub spells out the exact
+one per part (Problem 8 has three functions, `part1`..`part3`). Each takes the input
+for that part as a **list of lines** and returns a **list of output lines**. The docstring at the top of every stub spells out the exact
 input format and expected output. There's a `__main__` block so you can run a part
 against stdin manually:
 
