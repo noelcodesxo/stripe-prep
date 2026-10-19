@@ -1,10 +1,11 @@
 # Stripe-Style OA Practice
 
 A self-contained, **offline** practice kit modeled on the format of Stripe's HackerRank
-engineering coding challenge: eight problems, each with a starter (boilerplate) file
+engineering coding challenge: nine problems, each with a starter (boilerplate) file
 and a runnable test suite. Problems 1–7 are **original** four-part exercises written
 to mimic the *shape* of the real thing. Problem 8 is a three-part reconstruction
-from public reports, with explicit practice conventions. None is an official
+from public reports, with explicit practice conventions. Problem 9 adapts the
+Request Routing System as a single function. None is an official
 assessment statement.
 
 ## Why they look like this
@@ -27,6 +28,7 @@ format exactly, is the goal.
 | 6 | `p6_store_closing` | Store Closing Time | prefix-sum penalty, BEGIN/END state-machine parse |
 | 7 | `p7_card_validation` | Payment Card Validation | Luhn, network detect, redacted/corrupted brute force |
 | 8 | `p8_chat_billing` | Chat Token Billing | CSV parsing, grouped usage, token blocks, session-based proration |
+| 9 | `p9_request_routing` | Request Routing System | command parsing, geographic distance, health, capacity fallback |
 
 Read `STUDY_GUIDE.md` first — it's the strategy + pattern reference, and it maps each
 pattern to the problem that drills it. Problem statements live in the numbered `.md`
@@ -46,6 +48,7 @@ stripe-prep/
   06_store_closing.md
   07_card_validation.md
   08_chat_billing.md
+  09_request_routing.md
   problems/
     p4_load_balancer/
       solution_p4.py             <- your code goes here (stub with the I/O contract)
@@ -57,14 +60,16 @@ stripe-prep/
 
 ## How it works
 
-Each `solution_pX.py` mirrors a HackerRank stub: four functions (`part1`..`part4`),
-one per part (Problem 8 has three functions, `part1`..`part3`). Each takes the input
-for that part as a **list of lines** and returns a **list of output lines**. The docstring at the top of every stub spells out the exact
-input format and expected output. There's a `__main__` block so you can run a part
+Problems 1–7 expose four functions (`part1`..`part4`); Problem 8 has three
+(`part1`..`part3`). These take a **list of lines** and return a **list of output lines**.
+Problem 9 instead exposes `solveRequestRoutingSystem(input_text)`, accepting the
+complete input as one newline-separated string and returning a list of output lines.
+The docstring at the top of every stub spells out the exact input and output contract. There's a `__main__` block so you can run a part
 against stdin manually:
 
 ```
 python problems/p4_load_balancer/solution_p4.py 3 < some_input.txt
+python problems/p9_request_routing/solution_p9.py < routing_input.txt
 ```
 
 The tests call your functions directly and compare against hand-verified expected
