@@ -32,4 +32,4 @@ CASES = [
 
 @pytest.mark.parametrize("name,fn,inp,expected", CASES, ids=[c[0] for c in CASES])
 def test_part(name, fn, inp, expected):
-    assert getattr(sol, fn)(inp) == expected
+    assert sol.Solution().solve(inp, part=int(fn[-1])) == expected

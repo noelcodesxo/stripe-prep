@@ -28,8 +28,11 @@ The data-structure toolkit you actually need is small: **hash maps/sets, sorting
 
 Every one of these problems is **one scenario revealed in 4 escalating parts**, where each part reuses the previous part's code. This structure rewards a specific way of working:
 
-**Design Part 1 to be extended, not just to pass.**
-- Put the core logic in **small, named functions** (`normalize(name)`, `compute_penalty(log, t)`, `luhn_ok(num)`), not one giant `main`.
+**Design Part 1 to be extended, not just to pass.** Each practice problem uses one
+`Solution.solve(lines, part=...)` entry point. The `part` argument enables the latest
+stage's rules; it does not switch to a separate output mode. Keep earlier request
+types and report fields working as later features join the same stateful flow.
+- Put the core logic in **small, named helper methods** on `Solution` (`normalize(name)`, `compute_penalty(log, t)`, `luhn_ok(num)`), with `solve` coordinating one cumulative flow.
 - Keep your **state explicit** — a dict/set/class you can inspect and *mutate* later. Part 3 almost always adds "undo" (reclaim a name, dispute a charge, dissolve a company), so store enough information to reverse an action, not just the final answer.
 - Use a **line dispatcher** for input. Later parts add new line types (`RECLAIM,...`, `DISPUTE,...`, `BEGIN...END`). If Part 1 already routes each line by its prefix, adding a case is a two-line change.
 

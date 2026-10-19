@@ -1,46 +1,133 @@
 # Problem 6 — Store Closing Time
 
-*An original problem in the shape of a common Stripe "penalty / best cutoff" OA. Original wording.*
+*An original problem in the shape of a common Stripe penalty / best-cutoff OA.*
 
-A store logs each hour as `Y` (customers present) or `N` (empty). We choose a **closing time** `t` in `0 .. n` (0 = never open, n = open all day). The penalty is:
+A store logs each hour as `Y` (customers present) or `N` (empty). A closing time `t`
+is in `0 .. n`: `0` means never open and `n` means open all day. The unweighted
+penalty is:
 
-- `+1` (or a weight) for each hour we were **open but empty** — that's `N` hours in `hours[:t]`.
-- `+1` (or a weight) for each hour we were **closed but had customers** — that's `Y` hours in `hours[t:]`.
+- one for each `N` in the open prefix `hours[:t]`;
+- one for each `Y` in the closed suffix `hours[t:]`.
 
-## Part 1 — Compute penalty
+Use one `Solution.solve(lines, part=...)` processor. Every evaluated log emits the same
+row, `<time> <penalty>`. Later parts add automatic selection, multiple logs, and
+weights while retaining the earlier explicit-close request.
 
-Input: line 1 = space-separated `Y`/`N` log; line 2 = a closing time `t`. Output one line: the penalty.
+In the examples below, pass the input as a list of strings to
+`Solution().solve(lines, part=...)`, using the part number shown. Return the
+expected output as a list of strings, one string per displayed line, without
+labels or extra blank lines. Each example is a separate call with fresh state.
 
+## Input records
+
+Each record contains a request prefix followed by one noisy `BEGIN ... END` log. The
+prefix applies to the next completed log and can share a line with it or appear on an
+earlier line:
+
+```text
+CLOSE <t> BEGIN <Y/N and garbage tokens>* END
+AUTO BEGIN <Y/N and garbage tokens>* END
 ```
-log "Y Y N Y", t=3  -> 2   (hour 3 open+empty = 1; hour 4 closed+customers = 1)
-log "Y Y N Y", t=4  -> 1   (open all day: only the empty hour 3 counts)
+
+`CLOSE <t>` requests the penalty at that explicit time. `AUTO` requests the minimum
+penalty and chooses the smallest closing time on ties. From Part 3 onward, an
+unmarked `BEGIN ... END` record is also an automatic request. Each valid completed
+record emits one row in input order. A prefix with no completed record is discarded.
+
+The noisy-log parser follows these rules in every part:
+
+- Any number of records may be present; logs may span lines.
+- A second `BEGIN` before `END` restarts that log.
+- Tokens other than `Y`, `N`, `BEGIN`, and `END` are garbage and are ignored.
+- A `BEGIN` without a matching `END` is discarded.
+
+## Part 1 — Explicit close
+
+Use `CLOSE <t>` with one log. Output `<t> <penalty>`.
+
+**Example input**
+
+```text
+CLOSE 3 BEGIN Y Y N Y END
 ```
 
-## Part 2 — Best closing time
+**Expected output**
 
-Input: line 1 = the log. Output one line: the closing time with **minimum penalty**; on a tie, the **smallest** closing time. There are `n+1` candidates (`0..n`) — aim for O(n) with a running count, not O(n²).
+```text
+3 2
+```
 
-## Part 3 — Aggregate parsing
+One empty hour is open and one customer hour is closed: penalty 2 at closing time 3.
 
-Employees paste many days into one noisy blob (any number of input lines). A **valid log** is a run `BEGIN <Y/N>* END`:
+## Part 2 — Best close
 
-- `BEGIN` with no matching `END` is discarded (unfinished).
-- Logs cannot nest — a second `BEGIN` before `END` **restarts** the current log.
-- Any token that isn't `BEGIN`, `END`, `Y`, or `N` is garbage; ignore it.
-- Logs may span multiple lines; there may be several per line.
+Use `AUTO` with one log. Output `<best_time> <minimum_penalty>`. The chosen time is
+the smallest `t` that achieves the minimum.
 
-Output the best closing time (Part 2) for each valid log, in order, one per line.
+**Example input**
+
+```text
+AUTO BEGIN Y Y N Y END
+```
+
+**Expected output**
+
+```text
+2 1
+```
+
+Times 2 and 4 both have penalty 1; the earlier time wins.
+
+## Part 3 — Aggregate logs
+
+Process any number of noisy logs through the same parser. Unmarked logs default to
+`AUTO`; explicit `CLOSE` and `AUTO` requests remain valid in the aggregate stream.
+
+**Example input**
+
+```text
+garbage BEGIN Y Y N END trash BEGIN N Y END un
+finished BEGIN Y Y
+```
+
+**Expected output**
+
+```text
+2 0
+0 1
+```
+
+The two completed logs produce rows; the final unfinished log produces none.
 
 ## Part 4 — Weighted penalties
 
-Input: line 1 = `WEIGHTS <a> <b>` where `a` is the cost of each empty-open hour and `b` the cost of each closed-with-customers hour; the rest is an aggregate blob as in Part 3. For each valid log, output `<best_time> <min_penalty>` under those weights.
+An optional first line `WEIGHTS <a> <b>` changes the costs for every record: `a` per
+empty hour while open, `b` per customer hour while closed. All earlier record forms
+remain valid, and every output row keeps the `<time> <penalty>` layout.
 
+**Example input**
+
+```text
+WEIGHTS 1 5
+CLOSE 1 BEGIN N Y END
+AUTO BEGIN Y N Y END
+garbage BEGIN Y BEGIN N Y END
 ```
-WEIGHTS 1 5 / BEGIN Y N Y END  -> "3 1"   (closing at 3 leaves only the one empty hour)
+
+**Expected output**
+
+```text
+1 6
+3 1
+2 1
 ```
+
+The explicit close costs 1 + 5 = 6. The automatic requests choose time 3 and time 2; the nested `BEGIN` restarts the last log.
 
 ## Traps to watch
 
-- Closing time ranges over `0..n` inclusive — that's `n+1` candidates.
-- Ties resolve to the **smallest** time (scan ascending with a strict `<`).
-- Nested `BEGIN` resets; unfinished logs vanish.
+- Closing time ranges over `0..n`, including both endpoints.
+- Ties resolve to the smallest time; scan ascending and update only on a strict
+  improvement.
+- Keep request mode attached to the record it prefixes, even if a nested `BEGIN`
+  restarts that record.

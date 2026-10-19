@@ -8,9 +8,9 @@ CASES = [
     ('part1_still_active', 'part1', ['PLAN basic 100', 'PLAN pro 300', '0 SUBSCRIBE bob pro', 'QUERY 10'], ['bob 3000']),
     ('part2_change_proration', 'part2', ['PLAN basic 100', 'PLAN pro 300', '0 SUBSCRIBE bob basic', '4 CHANGE bob pro', '6 CANCEL bob', 'QUERY 10'], ['bob 1000']),
     ('part3_resub_and_refund', 'part3', ['PLAN basic 100', '0 SUBSCRIBE carol basic', '5 CANCEL carol', '10 SUBSCRIBE carol basic', '12 CANCEL carol', '15 REFUND carol 250', 'QUERY 20'], ['carol 450']),
-    ('part4_invoice_windows', 'part4', ['PLAN basic 100', 'PLAN pro 300', '0 SUBSCRIBE carol basic', '4 CHANGE carol pro', 'INVOICE carol 3 8', 'INVOICE carol 0 4', 'INVOICE carol 100 200'], ['carol 1300', 'carol 400', 'carol 30000']),
+    ('part4_query_and_invoice_windows', 'part4', ['PLAN basic 100', 'PLAN pro 300', '0 SUBSCRIBE carol basic', '4 CHANGE carol pro', 'QUERY 8', 'INVOICE carol 3 8', 'INVOICE carol 0 4', 'INVOICE carol 100 200'], ['carol 1600', 'carol 1300', 'carol 400', 'carol 30000']),
 ]
 
 @pytest.mark.parametrize("name,fn,inp,expected", CASES, ids=[c[0] for c in CASES])
 def test_part(name, fn, inp, expected):
-    assert getattr(sol, fn)(inp) == expected
+    assert sol.Solution().solve(inp, part=int(fn[-1])) == expected

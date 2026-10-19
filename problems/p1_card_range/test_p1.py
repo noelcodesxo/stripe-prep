@@ -8,13 +8,17 @@ CASES = [
     ('part1_boundaries', 'part1', ['100 200 a', '201 300 b', 'QUERIES', '100', '200', '201', '99'], ['a', 'a', 'b', 'UNKNOWN']),
     ('part2_override', 'part2', ['400000 499999 visa', '450000 459999 visa_debit', 'QUERIES', '455000', '411111'], ['visa_debit', 'visa']),
     ('part2_partial_override', 'part2', ['10 50 a', '20 30 b', '30 40 c', 'QUERIES', '25', '30', '35', '15'], ['b', 'c', 'c', 'a']),
-    ('part3_gap', 'part3', ['100 200 a', '400 500 b'], ['201 399']),
-    ('part3_adjacent_nogap', 'part3', ['100 200 a', '201 300 b'], ['NONE']),
-    ('part3_single_none', 'part3', ['100 200 a'], ['NONE']),
-    ('part4_merge_same_bank', 'part4', ['100 150 visa', '151 200 visa', '300 400 amex'], ['100 200 visa', '300 400 amex']),
-    ('part4_nested_same_bank', 'part4', ['0 100 visa', '50 60 visa', '40 70 visa'], ['0 100 visa']),
+    ('part3_gap', 'part3', ['100 200 a', '400 500 b', 'QUERIES', 'GAPS'], ['201 399']),
+    ('part3_adjacent_nogap', 'part3', ['100 200 a', '201 300 b', 'QUERIES', 'GAPS'], ['NONE']),
+    ('part3_single_none', 'part3', ['100 200 a', 'QUERIES', 'GAPS'], ['NONE']),
+    ('part4_merge_same_bank', 'part4', ['100 150 visa', '151 200 visa', '300 400 amex', 'QUERIES', 'CANONICAL'], ['100 200 visa', '300 400 amex']),
+    ('part4_nested_same_bank', 'part4', ['0 100 visa', '50 60 visa', '40 70 visa', 'QUERIES', 'CANONICAL'], ['0 100 visa']),
+    ('part4_lookups_gaps_and_canonical', 'part4',
+     ['10 20 a', '30 40 b', 'QUERIES', '15', 'GAPS', '35', 'CANONICAL'],
+     ['a', '21 29', 'b', '10 20 a', '30 40 b']),
+    ('range_definitions_without_requests', 'part2', ['100 200 a'], []),
 ]
 
 @pytest.mark.parametrize("name,fn,inp,expected", CASES, ids=[c[0] for c in CASES])
 def test_part(name, fn, inp, expected):
-    assert getattr(sol, fn)(inp) == expected
+    assert sol.Solution().solve(inp, part=int(fn[-1])) == expected

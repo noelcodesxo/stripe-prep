@@ -45,7 +45,7 @@ stripe-prep/
   07_card_validation.md
   problems/
     p4_load_balancer/
-      solution_p4.py             <- your code goes here (stub with the I/O contract)
+      solution_p4.py             <- your code goes here (Solution class with I/O contract)
       test_p4.py                 <- runnable, hand-verified tests
     ...one folder per problem...
   requirements.txt
@@ -54,18 +54,21 @@ stripe-prep/
 
 ## How it works
 
-Each `solution_pX.py` mirrors a HackerRank stub: four functions (`part1`..`part4`),
-one per part. Each takes the input for that part as a **list of lines** and returns a
-**list of output lines**. The docstring at the top of every stub spells out the exact
-input format and expected output. There's a `__main__` block so you can run a part
-against stdin manually:
+Each `solution_pX.py` mirrors a HackerRank stub: a `Solution` class with one stable
+entry point, `solve(lines, part=1)`. Pass the cumulative input as a **list of lines**;
+it returns a **list of output lines**. `part` selects the latest feature or rule you
+are practicing. Later parts extend the same state and retain earlier request types
+and output fields instead of switching to a separate program. Implement the shared
+flow in `solve` and its domain helpers, leaving the CLI harness alone. The docstring
+at the top of every stub summarizes its input and output contract. Run a part against
+stdin manually with:
 
 ```
 python problems/p4_load_balancer/solution_p4.py 3 < some_input.txt
 ```
 
-The tests call your functions directly and compare against hand-verified expected
-outputs — they fail with `NotImplementedError` until you fill each part in.
+The tests call `Solution.solve` and compare against hand-verified expected outputs —
+they fail with `NotImplementedError` until you fill in the cumulative features.
 
 ## Timed practice driver
 
@@ -94,10 +97,11 @@ python -m pytest problems -v            # or straight through pytest
 ## How to practice
 
 1. **Read the entire problem — all parts — before writing any code.** Later parts
-   often reveal how you should have structured Part 1. (The load balancer is the
-   clearest example: design one class up front.)
+   add requests and rules to the same processor. (The load balancer is the clearest
+   example: design one stateful class up front.)
 2. Simulate the real thing: **60 minutes total** on one problem, via `practice.py`.
-3. Build and test **part by part.** Get Part 1 green before touching Part 2.
+3. Build and test **part by part.** Keep earlier requests working as each feature is
+   added; later tests include earlier behavior.
 4. Reference solutions are intentionally **not** included — the value is in doing it
    cold. The tests show input/output examples, not the algorithm. Language: Python,
    but the real OA is language-agnostic.

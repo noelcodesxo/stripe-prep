@@ -23,10 +23,12 @@ CASES = [
      ['a1|Llama Inc.', 'RECLAIM|a2|Llama Inc.', 'a2|Llama'],
      ['a1|Name Available', 'a2|Name Not Available']),
     ('part4_whois_lookup', 'part4',
-     ['a1|Llama Inc.', 'WHOIS|the llama', 'WHOIS|Acme', 'RECLAIM|a1|Llama Inc.', 'WHOIS|Llama'],
-     ['a1|Name Available', 'a1', 'UNREGISTERED', 'UNREGISTERED']),
+     ['a1|Llama Inc.', 'WHOIS|the llama', 'WHOIS|Acme', 'RECLAIM|a1|Llama Inc.',
+      'WHOIS|Llama', 'a2|Llama', 'WHOIS|Llama'],
+     ['a1|Name Available', 'a1', 'UNREGISTERED', 'UNREGISTERED',
+      'a2|Name Available', 'a2']),
 ]
 
 @pytest.mark.parametrize("name,fn,inp,expected", CASES, ids=[c[0] for c in CASES])
 def test_part(name, fn, inp, expected):
-    assert getattr(sol, fn)(inp) == expected
+    assert sol.Solution().solve(inp, part=int(fn[-1])) == expected
