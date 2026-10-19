@@ -29,6 +29,7 @@ TITLES = {
     "p5_name_registry": "Company Name Registry",
     "p6_store_closing": "Store Closing Time",
     "p7_card_validation": "Payment Card Validation",
+    "p8_chat_billing": "Chat Token Billing",
 }
 
 
