@@ -2,13 +2,14 @@
 
 *Prep doc for a 60-minute, single-problem-in-4-parts assessment.*
 
-> **How this maps to the practice repo.** The eight problems in `problems/` are
+> **How this maps to the practice repo.** The nine problems in `problems/` are
 > concrete drills for the patterns below: name registry (P5) → §3A/B, card range
 > (P1) & card validation (P7) → §3C/G, subscription (P2) → §3F, fraud (P3) → the
 > grouped-threshold pattern, store closing (P6) → §3D/E, load balancer (P4) → §8.
 > Read a problem's `.md`, solve its stub cold, run its tests. Use `practice.py` to
 > time yourself. Chat token billing (P8) adds CSV parsing, grouped usage, exact
-> money formatting, and session-based proration in three parts.
+> money formatting, and session-based proration in three parts. Request routing
+> (P9) adds geographic ordering, command validation, and capacity/health state.
 
 ---
 
