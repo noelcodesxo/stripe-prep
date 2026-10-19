@@ -13,6 +13,11 @@ Use one `Solution.solve(lines, part=...)` processor. Every evaluated log emits t
 row, `<time> <penalty>`. Later parts add automatic selection, multiple logs, and
 weights while retaining the earlier explicit-close request.
 
+In the examples below, pass the input as a list of strings to
+`Solution().solve(lines, part=...)`, using the part number shown. Return the
+expected output as a list of strings, one string per displayed line, without
+labels or extra blank lines. Each example is a separate call with fresh state.
+
 ## Input records
 
 Each record contains a request prefix followed by one noisy `BEGIN ... END` log. The
@@ -40,23 +45,59 @@ The noisy-log parser follows these rules in every part:
 
 Use `CLOSE <t>` with one log. Output `<t> <penalty>`.
 
+**Example input**
+
 ```text
-CLOSE 3 BEGIN Y Y N Y END  ->  3 2
+CLOSE 3 BEGIN Y Y N Y END
 ```
+
+**Expected output**
+
+```text
+3 2
+```
+
+One empty hour is open and one customer hour is closed: penalty 2 at closing time 3.
 
 ## Part 2 — Best close
 
 Use `AUTO` with one log. Output `<best_time> <minimum_penalty>`. The chosen time is
 the smallest `t` that achieves the minimum.
 
+**Example input**
+
 ```text
-AUTO BEGIN Y Y N Y END  ->  2 1
+AUTO BEGIN Y Y N Y END
 ```
+
+**Expected output**
+
+```text
+2 1
+```
+
+Times 2 and 4 both have penalty 1; the earlier time wins.
 
 ## Part 3 — Aggregate logs
 
 Process any number of noisy logs through the same parser. Unmarked logs default to
 `AUTO`; explicit `CLOSE` and `AUTO` requests remain valid in the aggregate stream.
+
+**Example input**
+
+```text
+garbage BEGIN Y Y N END trash BEGIN N Y END un
+finished BEGIN Y Y
+```
+
+**Expected output**
+
+```text
+2 0
+0 1
+```
+
+The two completed logs produce rows; the final unfinished log produces none.
 
 ## Part 4 — Weighted penalties
 
@@ -64,10 +105,24 @@ An optional first line `WEIGHTS <a> <b>` changes the costs for every record: `a`
 empty hour while open, `b` per customer hour while closed. All earlier record forms
 remain valid, and every output row keeps the `<time> <penalty>` layout.
 
+**Example input**
+
 ```text
 WEIGHTS 1 5
-BEGIN Y N Y END  ->  3 1
+CLOSE 1 BEGIN N Y END
+AUTO BEGIN Y N Y END
+garbage BEGIN Y BEGIN N Y END
 ```
+
+**Expected output**
+
+```text
+1 6
+3 1
+2 1
+```
+
+The explicit close costs 1 + 5 = 6. The automatic requests choose time 3 and time 2; the nested `BEGIN` restarts the last log.
 
 ## Traps to watch
 

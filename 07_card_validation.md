@@ -19,14 +19,29 @@ There are three networks:
 Luhn validation doubles every second digit from the right, subtracts 9 if the doubled
 value exceeds 9, sums the digits, and accepts when the sum is divisible by 10.
 
+In the examples below, pass the input as a list of strings to
+`Solution().solve(lines, part=...)`, using the part number shown. Return the
+expected output as a list of strings, one string per displayed line, without
+labels or extra blank lines. Each example is a separate call with fresh state.
+
 ## Part 1 — Visa checksum
 
 Input is a plain 16-digit Visa number. `outcome` is `VISA` if Luhn passes, otherwise
 `INVALID_CHECKSUM`. For plain cards, `count` is `1` only for a valid card and `0`
 otherwise; `details` is `-`.
 
+**Example input**
+
 ```text
-4532015112830366 -> 4532015112830366|VISA|1|-
+4532015112830366
+4242424242424243
+```
+
+**Expected output**
+
+```text
+4532015112830366|VISA|1|-
+4242424242424243|INVALID_CHECKSUM|0|-
 ```
 
 ## Part 2 — Multi-network plain cards
@@ -34,6 +49,26 @@ otherwise; `details` is `-`.
 Plain card requests may match any network. Check the network before Luhn: `outcome`
 is the network when valid, `INVALID_CHECKSUM` when a network matches but Luhn fails,
 or `UNKNOWN_NETWORK` when no network matches. Plain-card row fields stay the same.
+
+**Example input**
+
+```text
+4532015112830366
+5555555555554444
+378282246310005
+562523343010901
+4242424242424243
+```
+
+**Expected output**
+
+```text
+4532015112830366|VISA|1|-
+5555555555554444|MASTERCARD|1|-
+378282246310005|AMEX|1|-
+562523343010901|UNKNOWN_NETWORK|0|-
+4242424242424243|INVALID_CHECKSUM|0|-
+```
 
 ## Part 3 — Redacted cards
 
@@ -43,11 +78,23 @@ distinct valid completions across all networks. `details` lists each network wit
 least one completion as `NETWORK=count`, comma-separated and sorted alphabetically.
 Use `-` if there are no valid completions.
 
+Plain-card requests continue to use their Part 1/2 rows in the same input.
+
+**Example input**
+
 ```text
-453201511283036* -> 453201511283036*|REDACTED|1|VISA=1
+4532015112830366
+453201511283036*
 ```
 
-Plain-card requests continue to use their Part 1/2 rows in the same input.
+**Expected output**
+
+```text
+4532015112830366|VISA|1|-
+453201511283036*|REDACTED|1|VISA=1
+```
+
+Only digit `6` completes this pattern with a valid Visa checksum. The plain card still uses the earlier row format.
 
 ## Part 4 — Corrupted cards
 
@@ -61,9 +108,23 @@ number of distinct valid originals. `details` lists them as `digits:NETWORK`,
 semicolon-separated and sorted numerically ascending. Use `-` when there are none.
 Plain and redacted rows retain their earlier formats.
 
+**Example input**
+
 ```text
-340000000000009? -> 340000000000009?|CORRUPTED|1|340000000000090:AMEX
+4532015112830366
+453201511283036*
+340000000000009?
 ```
+
+**Expected output**
+
+```text
+4532015112830366|VISA|1|-
+453201511283036*|REDACTED|1|VISA=1
+340000000000009?|CORRUPTED|1|340000000000090:AMEX
+```
+
+The input mixes all three request forms. The unchanged AMEX number is excluded because reconstruction requires exactly one operation.
 
 ## Traps to watch
 
